@@ -3,19 +3,19 @@ defmodule AdventOfCode.Day01Test do
 
   import AdventOfCode.Day01
 
-  @tag :skip
   test "part1" do
-    input = nil
+    input = "1abc2\npqr3stu8vwx\na1b2c3d4e5f\ntreb7uchet"
     result = part1(input)
 
-    assert result
+    assert result = 142
   end
 
-  @tag :skip
   test "part2" do
-    input = nil
+    input =
+      "two1nine\neightwothree\nabcone2threexyz\nxtwone3four\n4nineeightseven2\nzoneight234\n7pqrstsixteen"
+
     result = part2(input)
 
-    assert result
+    assert result = 281
   end
 end
