@@ -25,7 +25,7 @@ defmodule AdventOfCode.Day01 do
 
   def extract2(line) do
     regex =
-      ~r/^.*?(\d|one|two|three|four|five|six|seven|eight|nine).*(\d|one|two|three|four|five|six|seven|eight|nine)?.*$/
+      ~r/^.*?(\d|one|two|three|four|five|six|seven|eight|nine)(?:.*(\d|one|two|three|four|five|six|seven|eight|nine))?.*?$/
 
     [first | last] = Regex.run(regex, line, capture: :all_but_first)
     last = List.last([first | last])
