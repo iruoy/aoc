@@ -1,63 +1,49 @@
 defmodule AdventOfCode.Day02 do
-  def part1(args) do
+  @bag %{"red" => 12, "green" => 13, "blue" => 14}
+
+  def part1(args), do: solve(args, &filter_possible_games/1)
+  def part2(args), do: solve(args, &sum_minimum_cubes/1)
+
+  defp solve(args, operation) do
     args
-    |> String.trim()
-    |> String.split("\n")
+    |> String.split("\n", trim: true)
     |> Enum.map(&parse_game/1)
-    |> Enum.with_index(1)
-    |> Enum.filter(&possible_game?/1)
-    |> Enum.map(fn {_, index} -> index end)
+    |> operation.()
+  end
+
+  defp filter_possible_games(games) do
+    games
+    |> Stream.with_index(1)
+    |> Stream.filter(fn {game, _} -> possible_game?(game) end)
+    |> Stream.map(fn {_, index} -> index end)
     |> Enum.sum()
   end
 
-  def part2(args) do
-    args
-    |> String.trim()
-    |> String.split("\n")
-    |> Enum.map(&parse_game/1)
-    |> Enum.map(&minimum_cubes/1)
-    |> Enum.sum()
+  defp sum_minimum_cubes(games) do
+    Enum.sum(for cubes <- games, do: Enum.product(Map.values(cubes)))
   end
 
-  def minimum_cubes(cubes) do
-    cubes
-    |> Map.values()
-    |> Enum.product()
-  end
-
-  def possible_game?(tuple) do
-    bag = %{"red" => 12, "green" => 13, "blue" => 14}
-
-    {cubes, _index} = tuple
-
-    cubes
-    |> Enum.filter(fn {color, count} ->
-      bag[color] >= count
-    end)
-    |> Enum.count() == 3
+  def possible_game?(cubes) do
+    Enum.all?(cubes, fn {color, count} -> @bag[color] >= count end)
   end
 
   def parse_game(line) do
-    Regex.run(~r/^Game \d+: (.+)$/, line, capture: :all_but_first)
-    |> Enum.at(0)
+    ~r/^Game \d+: (.+)$/
+    |> Regex.run(line, capture: :all_but_first)
+    |> List.first()
     |> String.split("; ")
     |> Enum.map(&parse_cubes/1)
     |> max_cubes()
   end
 
-  def max_cubes(cube_sets) do
-    Enum.reduce(cube_sets, %{}, fn set, acc ->
-      Map.merge(acc, set, fn _, x, y -> max(x, y) end)
-    end)
-  end
+  def max_cubes(cube_sets), do: Enum.reduce(cube_sets, %{}, &Map.merge(&2, &1, fn _, x, y -> max(x, y) end))
 
   def parse_cubes(cubes) do
     cubes
     |> String.split(", ")
-    |> Enum.map(fn cube ->
+    |> Map.new(fn cube ->
       [count, color] = String.split(cube, " ")
       {color, String.to_integer(count)}
     end)
-    |> Map.new()
   end
 end
